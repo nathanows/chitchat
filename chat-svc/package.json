@@ -1,0 +1,17 @@
+{
+  "name": "chat-svc",
+  "version": "1.0.0",
+  "description": "Chat API",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^18.3.1",
+    "ioredis": "^4.11.2",
+    "laabr": "^5.1.0"
+  }
+}

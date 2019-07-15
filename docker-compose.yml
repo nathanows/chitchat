@@ -1,0 +1,33 @@
+redis:
+  image: redis
+  container_name: redis
+  expose:
+    - 6379
+chat-svc:
+  build: chat-svc/
+  container_name: chat
+  ports:
+    - 3000:3000
+  links:
+    - redis
+  environment:
+    - REDIS_URL=redis://redis
+session-svc:
+  build: session-svc/
+  container_name: session
+  ports:
+    - 4000:4000
+  links:
+    - redis
+  environment:
+    - REDIS_URL=redis://redis
+web:
+  build: web-client
+  ports:
+    - 8080:80
+  links:
+    - chat-svc
+    - session-svc
+  environment:
+    - CHAT_URL=http://chat-svc:3000
+    - SESSION_URL=http://session-svc:3000

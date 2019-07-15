@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>ChitChat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div id="username">
+      <input type="text" name="usernameTxt" /> 
+      <input type="button" name="setUsername" value="Set Username" />
+    </div>
+    <div id="room" style="display:none;">>
+      <input type="text" name="roomNameTxt" /> 
+      <input type="button" name="joinRoom" value="Join" />
+    </div>
+    <div id="sendChat" style="display:none;">
+      <input type="text" name="chatTxt" /> 
+      <input type="button" name="sendBtn" value="Send" />
+    </div>
+    <br />
+    <div id="content"></div>
+    <script>    
+      $(document).ready(function() {
+        var username = "";
+        var roomname = "";
+        $('input[name=setUsername]').click(function(){
+          if($('input[name=usernameTxt]').val() != ""){
+            username = $('input[name=usernameTxt]').val();
+            //var msg = {type:'setUsername',user:username};
+            socket.emit('setUsername',{user:username});
+          }
+          $('#username').slideUp("slow",function(){
+            $('#room').slideDown("slow");
+          });
+        });
+        $('input[name=joinRoom]').click(function(){
+          if($('input[name=roomNameTxt]').val() != ""){
+            roomname = $('input[name=roomNameTxt]').val();
+            socket.emit('joinRoom',{room:roomname});
+          }
+          $('#room').slideUp("slow",function(){
+            $('#sendChat').slideDown("slow");
+          });
+        });
+
+        var socket = new io.connect("localhost:4000");
+        var content = $('#content');
+
+        socket.on('message', function(message){
+          var msg = JSON.parse(message)
+          content.append(`<strong>${msg.username}</strong>: ${msg.message}<br />`);
+        }) ;
+
+        socket.on('disconnect', function() {
+          content.html("<b>Disconnected!</b>");
+        });
+
+        $("input[name=sendBtn]").click(function(){
+          axios.post(
+              `http://localhost:3000/rooms/${roomname}/messages`,
+              {username: username, message : $("input[name=chatTxt]").val()}
+          ).then(function (response) {
+            console.log(response);
+            $("input[name=chatTxt]").val("");
+          }).catch(function (error) {
+            console.log(error)
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
